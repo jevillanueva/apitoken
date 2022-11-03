@@ -50,8 +50,8 @@ async def get_api_key(api_key: str = Security(api_key_header)):
         )
     else:
         try:
-            user = jws.verify(api_key, SECRET, algorithms=["HS256"])
-            return dict(json.loads(user))
+            user = jws.verify(api_key, SECRET, algorithms=[configuration.APP_TOKEN_ALGORITHM])
+            return UserInDB(**dict(json.loads(user)))
         except:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, detail="Token unvalid"
