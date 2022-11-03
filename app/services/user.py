@@ -21,8 +21,9 @@ class UserService:
             if hasattr(user, "admin"):
                 delattr(user, "admin")
             user.date_update = datetime.utcnow()
+            user.disabled = finded.disabled
             ret = db.user.find_one_and_update(
-                {"username": user.username, "disabled": finded.disabled},
+                {"username": user.username},
                 {"$set": user.dict(by_alias=True)},
                 return_document=ReturnDocument.AFTER,
             )

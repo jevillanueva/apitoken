@@ -25,16 +25,18 @@ oauth.register(
 async def login(request: Request):
     redirect_uri = request.url_for("auth_server_side")
     redirect_uri =  validate_forwarded_proto.validateHTTPS(url=redirect_uri, schema=request.headers.get("x-forwarded-proto"))
+    google = oauth.create_client('google')
     print(redirect_uri)
     print (request.headers)
-    return await oauth.google.authorize_redirect(request, redirect_uri)
+    return await google.authorize_redirect(request, redirect_uri)
 
 
 @router.get("/auth", response_model=Result)
 async def auth_server_side(request: Request):
-    token = await oauth.google.authorize_access_token(request)
-    user = await oauth.google.parse_id_token(request, token)
+    google = oauth.create_client('google')
+    token = await google.authorize_access_token(request)
     print(token)
+    user = token.get('userinfo')
     request.session['user'] = dict(user)
     userDB = UserInDB(
         username=user.get("email"),
