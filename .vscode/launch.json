@@ -1,0 +1,27 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "envFile": "${workspaceFolder}/.env",
+
+            "name": "Python: Uvicorn",
+            "type": "python",
+            "request": "launch",
+            "module": "uvicorn",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "app.main:app", "--host", "0.0.0.0" , "--reload"
+            ]
+        }
+        {
+            "envFile": "${workspaceFolder}/.env",
+
+            "name": "Python: Run Single File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+    ]
+}

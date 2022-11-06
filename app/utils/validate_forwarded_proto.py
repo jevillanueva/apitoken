@@ -1,5 +1,5 @@
 def validateHTTPS(url: str, schema: str = ""):
-    if schema is "":
+    if schema == "":
         return url
     else:
         if schema == "https":
