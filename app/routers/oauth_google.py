@@ -47,11 +47,11 @@ async def auth_server_side(request: Request):
         disabled=False,
     )
     ret = UserService.insert_or_update_user(userDB)
-    return Result(code=1, message="Login Success")
+    return Result(message="Login Success")
 
 
 @router.get('/logout', response_model=Result)  # Tag it as "authentication" for our docs
 async def logout(request: Request):
     # Remove the user
     request.session.pop('user', None)
-    return Result(code=1, message="Logout Success")
+    return Result(message="Logout Success")

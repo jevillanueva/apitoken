@@ -1,7 +1,7 @@
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, status
-from starlette.responses import Response
+from fastapi import APIRouter, Depends, Response, status
+from fastapi.responses import JSONResponse
 
 from app.auth.access import get_actual_user, get_api_key
 from app.models.result import Result
@@ -37,7 +37,6 @@ async def post_token(user: UserInDB = Depends(get_actual_user)):
 
 @router.delete(
     "",
-    status_code=status.HTTP_204_NO_CONTENT,
     responses={
         status.HTTP_404_NOT_FOUND: {"model": Result},
         status.HTTP_204_NO_CONTENT: {"model": None},
@@ -47,13 +46,12 @@ async def post_token(user: UserInDB = Depends(get_actual_user)):
 async def delete_token(id: PyObjectId, user: UserInDB = Depends(get_actual_user)):
     item = Token(token="", username=user.username)
     item.id = id
-    if item.id is None:
-        return Result(code=0, message="ID token not Found"), status.HTTP_404_NOT_FOUND
-
     ret = TokenService.get_by_id_and_user(item)
     if ret is None:
-        return Result(code=0, message="Token not Found"), status.HTTP_404_NOT_FOUND
-
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content=Result(message="Token not Found").dict(),
+        )
     item.username_update = user.username
     ret = TokenService.delete(item)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
@@ -61,7 +59,6 @@ async def delete_token(id: PyObjectId, user: UserInDB = Depends(get_actual_user)
 
 @router.get("/echo", response_model=str, status_code=status.HTTP_200_OK)
 async def echo_test_token(
-    q: Optional[str] = None,
-    user: UserInDB = Depends(get_api_key)
+    q: Optional[str] = None, user: UserInDB = Depends(get_api_key)
 ):
     return f"{user.username} says: '{q}'"
