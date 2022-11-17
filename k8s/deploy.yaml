@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: apitoken
+  name: apitoken
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: apitoken
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: apitoken
+    spec:
+      containers:
+      - image: apitoken-app:latest
+        name: apitoken-app
+        imagePullPolicy: IfNotPresent
+        ports:
+          - containerPort: 8000
+        envFrom:
+          - secretRef:
+              name: apitoken
+        resources: {}
+status: {}
