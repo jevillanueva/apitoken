@@ -17,7 +17,3 @@ class Token(BaseModel):
     date_update: Optional[datetime] = None
     username_insert: Optional[str] = None
     username_update: Optional[str] = None
-
-    class Config:
-        arbitrary_types_allowed = True
-        json_encoders = {ObjectId: str}

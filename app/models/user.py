@@ -17,10 +17,6 @@ class User(BaseModel):
     disabled: Optional[bool] = False
     admin: Optional[bool] = False
 
-    class Config:
-        arbitrary_types_allowed = True
-        json_encoders = {ObjectId: str}
-
 
 class UserInDB(User):
     hashed_password: Optional[str] = None

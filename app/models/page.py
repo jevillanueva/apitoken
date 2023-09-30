@@ -17,10 +17,6 @@ class Page(BaseModel):
                 </body>
                 </html>"""
 
-    class Config:
-        arbitrary_types_allowed = True
-        json_encoders = {ObjectId: str}
-
 
 class PageInDB(Page):
     disabled: Optional[bool] = False

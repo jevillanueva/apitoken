@@ -20,7 +20,6 @@ app = FastAPI(
     docs_url=None,
     redoc_url=None,
 )
-app.mount("/static", StaticFiles(directory="static"), name="static")
 
 app.add_middleware(
     SessionMiddleware, secret_key=configuration.APP_SECRET_KEY_MIDDLEWARE
@@ -43,8 +42,6 @@ async def get_documentation(
     response = get_swagger_ui_html(
         openapi_url="/api/openapi.json",
         title="Documentation",
-        swagger_js_url="/static/swagger-ui-bundle.js",
-        swagger_css_url="/static/swagger-ui.css",
     )
     return response
 
