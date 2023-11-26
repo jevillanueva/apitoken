@@ -3,7 +3,7 @@ import json
 from fastapi import Request, Security, status
 from fastapi.exceptions import HTTPException
 from fastapi.security.api_key import APIKeyHeader
-from jose import jws
+from jose import JWSError, jws
 
 from app.core import configuration
 from app.models.token import Token
@@ -67,19 +67,23 @@ async def get_api_key(api_key: str = Security(api_key_header)) -> UserInDB:
         UserInDB: _description_
     """
     api_key = api_key.replace("Bearer ", "", 1)
-    ret = TokenService.get_token(api_key)
-    if ret is None:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Token unvalid"
+    try:
+        user = jws.verify(
+            api_key, SECRET, algorithms=[configuration.APP_TOKEN_ALGORITHM]
         )
-    else:
-        try:
-            user = jws.verify(
-                api_key, SECRET, algorithms=[configuration.APP_TOKEN_ALGORITHM]
-            )
-            return UserInDB(**dict(json.loads(user)))
-        except Exception as e:
+        user_dict = dict(json.loads(user))
+        jti = user_dict["jti"]
+        actual_user = UserInDB(**user_dict)
+        ret = TokenService.verify_by_jti(jti)
+        print(ret)
+        if ret is None:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Token can not be verified",
+                status_code=status.HTTP_400_BAD_REQUEST, detail="Token unvalid"
             )
+        else:
+            return actual_user
+    except JWSError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Token can not be verified",
+        )
