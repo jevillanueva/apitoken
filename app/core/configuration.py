@@ -1,3 +1,4 @@
+"""File for configuration stored in environment variables."""
 import os
 
 APP_TITLE = os.getenv("APP_TITLE", "MY NEW API")

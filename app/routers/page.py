@@ -8,7 +8,7 @@ from app.models.result import Result
 from app.models.page import Page, PageInDB
 from app.models.user import UserInDB
 from app.services.page import PageService
-from app.utils.mongo_validator import PyObjectId
+from app.utils import PyObjectId
 
 router = APIRouter()
 
@@ -42,8 +42,8 @@ async def insert_page(
 ):
     item = Page(title=title, slug=slug, html=htmlarea)
     item.id = None
-    itemDB = PageInDB(**item.dict(by_alias=True))
-    itemDB.username_insert = user.username
+    itemDB = PageInDB(**item.model_dump(by_alias=True))
+    itemDB.username_insert = user.email
     inserted = PageService.insert(item=itemDB)
     return inserted
 
@@ -69,15 +69,15 @@ async def update_page(
     if item.id is None:
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
-            content=Result(message="Id Field Not Found").dict(),
+            content=Result(message="Id Field Not Found").model_dump(),
         )
-    itemDB = PageInDB(**item.dict(by_alias=True))
-    itemDB.username_update = user.username
+    itemDB = PageInDB(**item.model_dump(by_alias=True))
+    itemDB.username_update = user.email
     updated = PageService.update(itemDB)
     if updated is None:
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
-            content=Result(message="Page Not Found").dict(),
+            content=Result(message="Page Not Found").model_dump(),
         )
     else:
         return updated
@@ -93,11 +93,11 @@ async def update_page(
 async def delete_page(id: PyObjectId, user: UserInDB = Depends(get_actual_user)):
     itemDB = PageInDB(slug="", title="", html="")
     itemDB.id = id
-    itemDB.username_update = user.username
+    itemDB.username_update = user.email
     deleted = PageService.delete(item=itemDB)
     if deleted is None:
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
-            content=Result(message="Page Not Found").dict(),
+            content=Result(message="Page Not Found").model_dump(),
         )
     return Response(status_code=status.HTTP_204_NO_CONTENT)

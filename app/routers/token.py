@@ -8,30 +8,29 @@ from app.models.result import Result
 from app.models.token import Token
 from app.models.user import UserInDB
 from app.services.token import TokenService
-from app.utils.mongo_validator import PyObjectId
+from app.utils import PyObjectId
 
 router = APIRouter()
 
 
 @router.get("", response_model=List[Token], status_code=status.HTTP_200_OK)
 async def get_token(user: UserInDB = Depends(get_actual_user), q: Optional[str] = None):
-    search = Token(token="", username=user.username)
+    search = Token(token="", email=user.email)
     if q is not None:
         search.token = q
         tokens = TokenService.search(item=search)
     else:
-        tokens = TokenService.get(search.username)
+        tokens = TokenService.get(search.email)
     return tokens
 
 
 @router.post("", response_model=Token, status_code=status.HTTP_201_CREATED)
 async def post_token(user: UserInDB = Depends(get_actual_user)):
-    item = Token(token="", username=user.username)
-    print(item)
-    item.username_insert = user.username
-    ret = TokenService.create(item)
-    item.id = ret.inserted_id
-    ret = TokenService.get_by_id_and_user(item)
+    item = Token(token="", email=user.email)
+    item.username_insert = user.email
+    inserted_id = TokenService.create(item)
+    item.id = inserted_id
+    ret = TokenService.get_by_id_and_email(item)
     return ret
 
 
@@ -44,16 +43,16 @@ async def post_token(user: UserInDB = Depends(get_actual_user)):
     },
 )
 async def delete_token(id: PyObjectId, user: UserInDB = Depends(get_actual_user)):
-    item = Token(token="", username=user.username)
+    item = Token(token="", email=user.email)
     item.id = id
-    ret = TokenService.get_by_id_and_user(item)
+    ret = TokenService.get_by_id_and_email(item)
     if ret is None:
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
-            content=Result(message="Token not Found").dict(),
+            content=Result(message="Token not Found").model_dump(),
         )
-    item.username_update = user.username
-    ret = TokenService.delete(item)
+    item.username_update = user.email
+    TokenService.delete(item)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
@@ -61,4 +60,4 @@ async def delete_token(id: PyObjectId, user: UserInDB = Depends(get_actual_user)
 async def echo_test_token(
     q: Optional[str] = None, user: UserInDB = Depends(get_api_key)
 ):
-    return f"{user.username} says: '{q}'"
+    return f"{user.email} says: '{q}'"

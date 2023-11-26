@@ -1,13 +1,13 @@
 from datetime import datetime
 from typing import Optional
 
-from bson import ObjectId
 from pydantic import BaseModel, Field
 
-from app.utils.mongo_validator import PyObjectId
+from app.utils import PyObjectId
 
 
 class Page(BaseModel):
+    """Model for Page, used for return HTML page require slug and title"""
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     slug: str
     title: str
@@ -19,6 +19,7 @@ class Page(BaseModel):
 
 
 class PageInDB(Page):
+    """Model for Page in database storage extends from Page"""
     disabled: Optional[bool] = False
     date_insert: Optional[datetime] = None
     date_update: Optional[datetime] = None

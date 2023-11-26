@@ -11,11 +11,28 @@ from app.models.user import UserInDB
 from app.services.token import TokenService
 from app.services.user import UserService
 
+SECRET = configuration.APP_SECRET_TOKENS
+api_key_header = APIKeyHeader(name="Authorization", auto_error=True)
 
-async def get_actual_user(request: Request) -> UserInDB | None:
+
+async def get_actual_user(request: Request) -> UserInDB:
+    """Get actual user from session and validate if is admin or if is disabled
+
+    Args:
+        request (Request): Request from FastAPI
+
+    Raises:
+        HTTPException: User not Found
+        HTTPException: User Disabled
+        HTTPException: User is not admin
+        HTTPException: Session not valid or not found
+
+    Returns:
+        UserInDB: User from database
+    """
     user = request.session.get("user")
     if user is not None:
-        userDB = UserService.get_user(UserInDB(username=user["email"]))
+        userDB = UserService.get_user_by_email(user["email"])
         if userDB is None:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN, detail="User not Found"
@@ -36,23 +53,33 @@ async def get_actual_user(request: Request) -> UserInDB | None:
         )
 
 
-SECRET = configuration.APP_SECRET_TOKENS
-api_key_header = APIKeyHeader(name="Authorization", auto_error=True)
+async def get_api_key(api_key: str = Security(api_key_header)) -> UserInDB:
+    """Get api key Bearer from header and validate if is valid and return user
 
+    Args:
+        api_key (str, optional): Bearer token from header, Default Authorization header
 
-async def get_api_key(api_key: str = Security(api_key_header)):
+    Raises:
+        HTTPException: Token unvalid
+        HTTPException: Token can not be verified
+
+    Returns:
+        UserInDB: _description_
+    """
     api_key = api_key.replace("Bearer ", "", 1)
-    token = Token(token=api_key, username="")
-    ret = TokenService.get_token(token)
+    ret = TokenService.get_token(api_key)
     if ret is None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Token unvalid"
         )
     else:
         try:
-            user = jws.verify(api_key, SECRET, algorithms=[configuration.APP_TOKEN_ALGORITHM])
+            user = jws.verify(
+                api_key, SECRET, algorithms=[configuration.APP_TOKEN_ALGORITHM]
+            )
             return UserInDB(**dict(json.loads(user)))
-        except:
+        except Exception as e:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="Token unvalid"
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Token can not be verified",
             )
