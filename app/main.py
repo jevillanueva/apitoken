@@ -5,7 +5,6 @@ from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse, HTMLResponse
 from starlette.middleware.sessions import SessionMiddleware
-from fastapi.staticfiles import StaticFiles
 from app.auth.access import get_actual_user
 from app.core import configuration
 from app.routers import oauth_google, users, token, page, page_render

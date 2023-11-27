@@ -6,7 +6,7 @@ from app.core import configuration
 from app.models.result import Result
 from app.models.user import UserInDB
 from app.services.user import UserService
-from app.utils import validate_forwarded_proto
+from app.utils import validateHTTPS
 
 router = APIRouter()
 
@@ -24,20 +24,19 @@ oauth.register(
 @router.get("/login")
 async def login(request: Request):
     redirect_uri = request.url_for("auth_server_side")
-    redirect_uri =  validate_forwarded_proto.validateHTTPS(url=redirect_uri, schema=request.headers.get("x-forwarded-proto"))
-    google = oauth.create_client('google')
-    print(redirect_uri)
-    print (request.headers)
+    redirect_uri = validateHTTPS(
+        url=redirect_uri, schema=request.headers.get("x-forwarded-proto")
+    )
+    google = oauth.create_client("google")
     return await google.authorize_redirect(request, redirect_uri)
 
 
 @router.get("/auth", response_model=Result)
 async def auth_server_side(request: Request):
-    google = oauth.create_client('google')
+    google = oauth.create_client("google")
     token = await google.authorize_access_token(request)
-    print(token)
-    user = token.get('userinfo')
-    request.session['user'] = dict(user)
+    user = token.get("userinfo")
+    request.session["user"] = dict(user)
     userDB = UserInDB(
         username=user.get("email"),
         email=user.get("email"),
@@ -46,12 +45,11 @@ async def auth_server_side(request: Request):
         family_name=user.get("family_name"),
         disabled=False,
     )
-    ret = UserService.insert_or_update_user(userDB)
+    UserService.insert_or_update_user(userDB)
     return Result(message="Login Success")
 
 
-@router.get('/logout', response_model=Result)  # Tag it as "authentication" for our docs
+@router.get("/logout", response_model=Result) 
 async def logout(request: Request):
-    # Remove the user
-    request.session.pop('user', None)
+    request.session.pop("user", None)
     return Result(message="Logout Success")

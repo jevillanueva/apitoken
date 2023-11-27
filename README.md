@@ -22,11 +22,11 @@ To Run project using uvicorn Run And Debug:
 
 > In both Cases, the file .vscode/launch.json load file .env to environment variables
 
-## To test in Container Docker use
+## To run in Container Docker use
 ```sh
 docker-compose -f docker-compose.dev.yaml up -d --build
 ```
-## To test in Kubernetes 
+## To run in Kubernetes 
 First build image one form is using docker-compose
 ```sh
 docker-compose -f docker-compose.dev.yaml build
@@ -39,17 +39,25 @@ Run  de files in k8s deployment
 ```sh
 kubectl create -f ./k8s/deploy.yaml
 ```
-### 1. To test in local using Port Forward
-To test the service use port-forward in new terminal and **"don't close"**
+### 1. To run in local using Port Forward
+To run the service use port-forward in new terminal and **"don't close"**
 ```sh
 kubectl port-forward deploy/apitoken 8000:8000
 ```
 Use curl o browser to test localhost:8000
 
-### 2. To test in local using Expose
+### 2. To run in local using Expose
 To expose in Nodeport service use
 ```sh
 kubectl create -f ./k8s/expose.yaml
 ```
 Expose the endpoint using a port 30007, Kubernetes use a range in ports (30000-32767)
 Use curl o browser to test localhost:3007
+
+# Test
+The unit test are in the test folder in app, for execute test using Pytest:
+```sh
+pytest
+#For more details
+pytest -v -s
+```

@@ -8,9 +8,10 @@ from app.utils.mongo_validator import PyObjectId
 
 
 class User(BaseModel):
+    """Model for USER, require email and optional username"""
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
-    username: str
-    email: Optional[str] = None
+    username: str = ""
+    email: str
     picture: Optional[str] = None
     given_name: Optional[str] = None
     family_name: Optional[str] = None
@@ -19,6 +20,7 @@ class User(BaseModel):
 
 
 class UserInDB(User):
+    """Model for USER in database storage extends from User"""
     hashed_password: Optional[str] = None
     date_insert: Optional[datetime] = None
     date_update: Optional[datetime] = None
