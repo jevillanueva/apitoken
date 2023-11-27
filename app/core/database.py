@@ -1,7 +1,13 @@
 """Database instance for the application."""
-import pymongo
+from pymongo import MongoClient
 
 from app.core import configuration
 
-client = pymongo.MongoClient(configuration.APP_MONGO_URI)
-db = client.get_database(configuration.APP_MONGO_DB)
+if configuration.APP_ENVIRONMENT == "test":
+    from mongomock import MongoClient as MockClient
+
+    client = MockClient()
+    db = client.get_database("test")
+else:
+    client = MongoClient(configuration.APP_MONGO_URI)
+    db = client.get_database()
