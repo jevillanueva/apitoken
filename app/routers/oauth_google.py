@@ -28,8 +28,6 @@ async def login(request: Request):
         url=redirect_uri, schema=request.headers.get("x-forwarded-proto")
     )
     google = oauth.create_client("google")
-    print(redirect_uri)
-    print(request.headers)
     return await google.authorize_redirect(request, redirect_uri)
 
 

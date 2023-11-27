@@ -75,7 +75,6 @@ async def get_api_key(api_key: str = Security(api_key_header)) -> UserInDB:
         jti = user_dict["jti"]
         actual_user = UserInDB(**user_dict)
         ret = TokenService.verify_by_jti(jti)
-        print(ret)
         if ret is None:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, detail="Token unvalid"
