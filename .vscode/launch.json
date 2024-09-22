@@ -5,7 +5,7 @@
             "envFile": "${workspaceFolder}/.env",
 
             "name": "Python: Uvicorn",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "module": "uvicorn",
             "console": "integratedTerminal",
@@ -18,7 +18,7 @@
             "envFile": "${workspaceFolder}/.env",
 
             "name": "Python: Run Single File",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
